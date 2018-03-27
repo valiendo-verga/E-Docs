@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="UTF-8">
+  <title>Hello World!</title>
+</head>
+
+<body>
+  <h1 id="h1">Hello World!</h1>
+</body>
+
+<script>
+  var ipc = require('electron').ipcRenderer;
+  var h1 = document.getElementById('h1');
+
+  h1.addEventListener('click', function () {
+    ipc.once('actionReply', function (event, response) {
+      h1.innerHTML = response
+    })
+    ipc.send('invokeAction', 'clicked');
+  });
+</script>
+
+</html>
