@@ -4,12 +4,13 @@
   "description": "",
   "main": "main.js",
   "scripts": {
-    "start": "electron .",
+    "start": "electromon .",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
   "license": "MIT",
   "dependencies": {
+    "electromon": "^1.0.8",
     "electron": "^1.8.4",
     "jquery": "^3.3.1"
   }
