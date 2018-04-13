@@ -1,3 +1,8 @@
+require('dotenv').config()
+const PORT = process.env.PORT
+const MULTICAST = process.env.MULTICAST
+const ID = process.env.ID
+
 const {
   app,
   BrowserWindow,
@@ -8,8 +13,9 @@ const url = require('url')
 const dgram = require('dgram')
 const socket = dgram.createSocket('udp4');
 const ip = require('ip')
-const PORT = 8080
-const MULTICAST = '230.185.192.108'
+const vector = [0,0,0,0,]
+const queue = []
+
 
 console.log(ip.address())
 
@@ -59,6 +65,6 @@ ipc.on('invokeAction', function (event, data) {
 });
 
 socket.on('message', (msg, info) => {
-  console.log(msg)
+  console.log((new Buffer(msg)).toString())
   console.log(info)
 })
