@@ -4,11 +4,15 @@ const {
 } = require('electron')
 const path = require('path')
 const url = require('url')
+const fs = require('fs')
+
 
 let win
 
 let state = {
   text: '',
+  fileName: process.argv[2],
+  filePath: path.join(__dirname, process.argv[2])
 }
 
 const createWindow = () => {
@@ -48,6 +52,11 @@ app.on('activate', () => {
 })
 
 const ipc = require('electron').ipcMain;
+
+ipc.on('documentReady', function (event, data) {
+  state.text = String (fs.readFileSync (state.filePath));
+  event.sender.send('stateChange', state);
+});
 
 ipc.on('invokeAction', function (event, data) {
   console.log(data)
