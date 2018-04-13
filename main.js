@@ -8,7 +8,7 @@ const url = require('url')
 let win
 
 let state = {
-  text: ''
+  text: '',
 }
 
 const createWindow = () => {
@@ -30,6 +30,11 @@ const createWindow = () => {
   })
 }
 
+const setState = (newState, event) => {
+  state = newState;
+  event.sender.send('stateChange', state);
+}
+
 app.on('ready', createWindow)
 
 app.on('window-all-closed', () => {
@@ -46,11 +51,8 @@ const ipc = require('electron').ipcMain;
 
 ipc.on('invokeAction', function (event, data) {
   console.log(data)
-  event.sender.send('actionReply', data.text);
-});
-  state.text = data.text;
-  event.sender.send('actionReply', state.text);
   let diff = getChange (data.text, state.text, data.cursorPosition);
+  setState({ text: data.text }, event);
 });
 
 getChange = (newData, oldData, charPos) => {
