@@ -48,3 +48,20 @@ ipc.on('invokeAction', function (event, data) {
   console.log(data)
   event.sender.send('actionReply', data.text);
 });
+  state.text = data.text;
+  event.sender.send('actionReply', state.text);
+  let diff = getChange (data.text, state.text, data.cursorPosition);
+});
+
+getChange = (newData, oldData, charPos) => {
+  let diff = {};
+  if (newData.length > oldData.length) {
+    diff.char = newData.charAt (charPos - 1);
+    diff.actionType = 'added';
+  } else {
+    diff.char = oldData.charAt (charPos);
+    diff.actionType = 'deleted';
+  }
+
+  return diff;
+}
