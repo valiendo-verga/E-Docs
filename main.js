@@ -8,6 +8,10 @@ const url = require('url')
 const dgram = require('dgram')
 const socket = dgram.createSocket('udp4');
 const ip = require('ip')
+const PORT = 8080
+const MULTICAST = '230.185.192.108'
+
+console.log(ip.address())
 
 let win
 
@@ -29,8 +33,8 @@ const createWindow = () => {
     win = null
   })
 
-  socket.bind(() => {
-    socket.addMembership('230.185.192.108');
+  socket.bind(PORT, () => {
+    socket.addMembership(MULTICAST, ip.address());
 });
 }
 
@@ -50,10 +54,11 @@ const ipc = require('electron').ipcMain;
 
 ipc.on('invokeAction', function (event, data) {
   console.log(data)
-  socket.send(data, 8080)
+  socket.send(data, PORT, MULTICAST)
   event.sender.send('actionReply', 'Hola');
 });
 
 socket.on('message', (msg, info) => {
   console.log(msg)
+  console.log(info)
 })
