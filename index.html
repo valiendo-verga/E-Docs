@@ -8,19 +8,21 @@
 
 <body>
   <h1 id="h1">E-Docs</h1>
-  <textarea name="main-content" id="main-content"></textarea>
+  <textarea rows="24" cols="50" name="main-content" id="main-content"></textarea>
 </body>
 
 <script>
   const $ = require('jquery')
   $(document).ready(() => {
     const ipc = require('electron').ipcRenderer
-    const h1 = $('#h1')
-    h1.click(function () {
+    const mainContent = $('#main-content')
+
+    mainContent.on('input propertychange', function () {
       ipc.once('actionReply', function (event, response) {
-        h1.text(response)
-      })
-      ipc.send('invokeAction', 'clicked')
+        mainContent.val(response)
+      });
+
+      ipc.send('invokeAction', mainContent.val())
     });
   })
 </script>
