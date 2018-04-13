@@ -21,8 +21,9 @@
       ipc.once('actionReply', function (event, response) {
         mainContent.val(response)
       });
+      var cursorPosition = mainContent.prop("selectionStart");
 
-      ipc.send('invokeAction', mainContent.val())
+      ipc.send('invokeAction', {text: mainContent.val(), cursorPosition})
     });
   })
 </script>

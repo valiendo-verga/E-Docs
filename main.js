@@ -7,6 +7,10 @@ const url = require('url')
 
 let win
 
+let state = {
+  text: ''
+}
+
 const createWindow = () => {
   win = new BrowserWindow({
     width: 800,
@@ -42,5 +46,5 @@ const ipc = require('electron').ipcMain;
 
 ipc.on('invokeAction', function (event, data) {
   console.log(data)
-  event.sender.send('actionReply', data);
+  event.sender.send('actionReply', data.text);
 });
