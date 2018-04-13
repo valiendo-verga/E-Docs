@@ -5,6 +5,10 @@ const {
 const path = require('path')
 const url = require('url')
 
+const dgram = require('dgram')
+const socket = dgram.createSocket('udp4');
+const ip = require('ip')
+
 let win
 
 const createWindow = () => {
@@ -24,6 +28,10 @@ const createWindow = () => {
   win.on('closed', () => {
     win = null
   })
+
+  socket.bind(() => {
+    socket.addMembership('230.185.192.108');
+});
 }
 
 app.on('ready', createWindow)
@@ -42,5 +50,10 @@ const ipc = require('electron').ipcMain;
 
 ipc.on('invokeAction', function (event, data) {
   console.log(data)
+  socket.send(data, 8080)
   event.sender.send('actionReply', 'Hola');
 });
+
+socket.on('message', (msg, info) => {
+  console.log(msg)
+})
