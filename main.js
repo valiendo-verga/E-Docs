@@ -11,7 +11,7 @@ let win
 
 let state = {
   text: '',
-  fileName: process.argv[2],
+  fileName: `Leyendo de archivo: ${process.argv[2]}`,
   filePath: path.join(__dirname, process.argv[2])
 }
 
@@ -35,7 +35,9 @@ const createWindow = () => {
 }
 
 const setState = (newState, event) => {
-  state = newState;
+  for (let key in newState) {
+    state[key] = newState[key]
+  }
   event.sender.send('stateChange', state);
 }
 
@@ -54,8 +56,7 @@ app.on('activate', () => {
 const ipc = require('electron').ipcMain;
 
 ipc.on('documentReady', function (event, data) {
-  state.text = String (fs.readFileSync (state.filePath));
-  event.sender.send('stateChange', state);
+  setState({ text: String (fs.readFileSync (state.filePath)) }, event);
 });
 
 ipc.on('invokeAction', function (event, data) {

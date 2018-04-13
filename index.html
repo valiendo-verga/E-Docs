@@ -7,7 +7,7 @@
 </head>
 
 <body>
-  <h1 id="h1">E-Docs</h1>
+  <h1 id="h1">Archivo actual es</h1>
   <textarea rows="24" cols="50" name="main-content" id="main-content"></textarea>
 </body>
 
@@ -16,17 +16,20 @@
   $(document).ready(() => {
     const ipc = require('electron').ipcRenderer
     const mainContent = $('#main-content')
+    const h1 = $('#h1');
 
     ipc.on('stateChange', (event, response) => {
+      console.log(response)
       mainContent.val(response.text);
+      h1.text(response.fileName);
     });
 
     mainContent.on('input propertychange', function () {
       const cursorPosition = mainContent.prop("selectionStart");
       ipc.send('invokeAction', {text: mainContent.val(), cursorPosition})
     });
-
-    ipc.send('documentReady', "");
+    
+    ipc.send('documentReady');
   })
 </script>
 
