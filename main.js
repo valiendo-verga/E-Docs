@@ -37,6 +37,7 @@ const checkForChanges = () => {
   if (aks === 0) {
     if (queue[0] && queue[0].from === ID) {
       // Write to file
+      setState({ text: state.text + queue[0].letter })
       const free = {
         type: 'FRE',
         from: ID,
@@ -78,11 +79,11 @@ const createWindow = () => {
   });
 }
 
-const setState = (newState, event) => {
+const setState = (newState) => {
   for (let key in newState) {
     state[key] = newState[key]
   }
-  event.sender.send('stateChange', state);
+  state.event.sender.send('stateChange', state);
 }
 
 app.on('ready', createWindow)
@@ -137,6 +138,7 @@ socket.on('message', (msg, info) => {
         break
       case 'FRE':
         // Write to file
+        setState({ text: state.text + queue[0].letter })
         queue.shift()
         checkForChanges()
         break
@@ -145,23 +147,25 @@ socket.on('message', (msg, info) => {
 })
 
 ipc.on('documentReady', function (event, data) {
-  setState({ text: String (fs.readFileSync (state.filePath)) }, event);
+  setState({ text: String (fs.readFileSync (state.filePath)), event });
 });
 
 ipc.on('invokeAction', function (event, data) {
   let diff = getChange (data.text, state.text, data.cursorPosition);
   sendMessages(diff);
-  setState({ text: data.text }, event);
+  //setState({ text: data.text, event });
 });
 
 getChange = (newData, oldData, charPos) => {
   let data = {};
   if (newData.length > oldData.length) {
     data.key = newData.charAt (charPos - 1);
-    data.pos = 'added';
+    data.pos = charPos -1;
+    data.action = 'added';
   } else {
     data.key = oldData.charAt (charPos);
-    data.pos = 'deleted';
+    data.pos = charPos;
+    data.action = 'deleted';
   }
 
   return data;
