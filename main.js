@@ -6,6 +6,7 @@ const PROCESSES = process.env.PROCESSES
 const {
   app,
   BrowserWindow,
+  dialog
 } = require('electron')
 const path = require('path')
 const url = require('url')
@@ -104,9 +105,24 @@ const createWindow = () => {
   }))
 
   win.webContents.openDevTools()
+  let preventClose = true;
 
-  win.on('closed', () => {
-    win = null
+  win.on('close', (e) => {
+    if (preventClose) {
+      e.preventDefault()
+      dialog.showMessageBox({
+        type: 'question',
+        buttons: ['Yes', 'No'],
+        title: 'Confirm',
+        message: 'Do you want to save your changes?'
+      }, function (response) {
+        preventClose = false;
+        win.close ();
+        if (response === 0) {
+          fs.writeFileSync(state.filePath,state.text, {encoding:'utf8'})
+        }
+      })
+    }
   })
 
   server = net.createServer((socket) => {
@@ -201,7 +217,7 @@ const sendMessages = (data) => {
 
 ipc.on('documentReady', (event, data) => {
   setState({
-    text: String(fs.readFileSync(state.filePath)),
+    text: String(fs.readFileSync(state.filePath)).replace(/\r?/g, ''),
     event
   })
 })
@@ -223,5 +239,9 @@ getChange = (newData, oldData, charPos) => {
     data.action = 'deleted'
   }
 
-  return data
+  if(data.key == '\r'){
+    data.key = '\n';
+  }
+
+  return data ;
 }
