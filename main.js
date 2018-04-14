@@ -104,7 +104,7 @@ const createWindow = () => {
         preventClose = false;
         win.close ();
         if (response === 0) {
-
+          fs.writeFileSync(state.filePath,state.text, {encoding:'utf8'})
         }
       })
     }
