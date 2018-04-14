@@ -42,9 +42,9 @@
     })
 
     mainContent.on('input propertychange', () => {
+      mainContent.prop('disabled', true)
       const cursorPosition = mainContent.prop("selectionStart")
       ipc.send('invokeAction', {text: mainContent.val(), cursorPosition})
-      mainContent.prop('disabled', true)
     })
 
     ipc.send('documentReady')
