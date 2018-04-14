@@ -10,6 +10,8 @@ const {
 } = require('electron')
 const path = require('path')
 const url = require('url')
+const fs = require('fs')
+
 
 const dgram = require('dgram')
 const socket = dgram.createSocket('udp4');
@@ -47,6 +49,12 @@ const checkForChanges = () => {
   }
 }
 
+let state = {
+  text: '',
+  fileName: `Leyendo de archivo: ${process.argv[2]}`,
+  filePath: path.join(__dirname, process.argv[2]),
+}
+
 const createWindow = () => {
   win = new BrowserWindow({
     width: 800,
@@ -70,6 +78,13 @@ const createWindow = () => {
   });
 }
 
+const setState = (newState, event) => {
+  for (let key in newState) {
+    state[key] = newState[key]
+  }
+  event.sender.send('stateChange', state);
+}
+
 app.on('ready', createWindow)
 
 app.on('window-all-closed', () => {
@@ -84,7 +99,7 @@ app.on('activate', () => {
 
 const ipc = require('electron').ipcMain;
 
-ipc.on('invokeAction', (event, data = {
+const sendMessages = (data = {
   key: 'a',
   pos: 0
 }) => {
@@ -98,7 +113,7 @@ ipc.on('invokeAction', (event, data = {
     }
   addToQueue(request)
   socket.send(JSON.stringify(request), PORT, MULTICAST)
-});
+};
 
 socket.on('message', (msg, info) => {
   if (info.address !== ip.address()) {
@@ -128,3 +143,27 @@ socket.on('message', (msg, info) => {
     }
   }
 })
+
+ipc.on('documentReady', function (event, data) {
+  setState({ text: String (fs.readFileSync (state.filePath)) }, event);
+});
+
+ipc.on('invokeAction', function (event, data) {
+  console.log(data)
+  let diff = getChange (data.text, state.text, data.cursorPosition);
+  sendMessages(diff);
+  setState({ text: data.text }, event);
+});
+
+getChange = (newData, oldData, charPos) => {
+  let data = {};
+  if (newData.length > oldData.length) {
+    data.key = newData.charAt (charPos - 1);
+    data.pos = 'added';
+  } else {
+    data.key = oldData.charAt (charPos);
+    data.pos = 'deleted';
+  }
+
+  return data;
+}
