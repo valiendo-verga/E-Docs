@@ -22,6 +22,7 @@ const ip = require('ip')
 let vector = [0, 0, 0, 0]
 let queue = []
 let aks = 0
+let cs = false
 
 console.log(ip.address())
 
@@ -41,6 +42,7 @@ const addToQueue = (request) => {
 const checkForChanges = () => {
   if (aks === 0) {
     if (queue[0] && queue[0].from === ID) {
+      cs = true
       // Write to file
       setState({
         text: state.text + queue[0].letter
@@ -58,6 +60,7 @@ const checkForChanges = () => {
           client.write(JSON.stringify(free))
         })
       })
+      cs = false
     }
   }
 }
@@ -99,6 +102,9 @@ const createWindow = () => {
           }
           break
         case 'REQ':
+          while (cs) {
+            setTimeout(() => {}, 500);
+          }
           addToQueue(msgObj) // Assuming we are not in the CS
           const ack = {
             type: 'ACK',
