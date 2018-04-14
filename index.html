@@ -34,6 +34,9 @@
     ipc.on('stateChange', (event, response) => {
       mainContent.val(response.text);
       h1.text(response.fileName);
+    });
+
+    ipc.on('unlock', (event, response) => {
       mainContent.prop('disabled', false)
       mainContent.focus()
     });
