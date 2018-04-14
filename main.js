@@ -45,7 +45,8 @@ const checkForChanges = () => {
       cs = true
       // Write to file
       const tmp = state.text.split('')
-      tmp.splice(queue[0].position, queue[0].action === 'added' ? 1 : 0, queue[0].action === 'added' ? queue[0].letter : undefined)
+      tmp.splice(queue[0].position, queue[0].action === 'added' ? 0 : 1, queue[0].action === 'added' ? queue[0].letter : undefined)
+      console.log(queue[0].action)
       setState({
         text: tmp.join('')
       })
@@ -54,6 +55,7 @@ const checkForChanges = () => {
         from: ID,
         letter: queue[0].letter, // from state
         position: queue[0].position, // from state
+        action: queue[0].action
       }
       queue.shift()
       clients.map((ip) => {
@@ -122,7 +124,8 @@ const createWindow = () => {
         case 'FRE':
           // Write to file
           const tmp = state.text.split('')
-          tmp.splice(queue[0].position, queue[0].action === 'added' ? 1 : 0, queue[0].action === 'added' ? queue[0].letter : undefined)
+          tmp.splice(queue[0].position, queue[0].action === 'added' ? 0 : 1, queue[0].action === 'added' ? queue[0].letter : undefined)
+          console.log(queue[0].action)
           setState({
             text: tmp.join('')
           })
@@ -166,6 +169,7 @@ const sendMessages = (data) => {
       from: ID,
       position: data.pos,
       letter: data.key,
+      action: data.action,
     }
   addToQueue(request)
   clients.map((ip) => {
