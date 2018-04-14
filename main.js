@@ -15,8 +15,8 @@ const net = require('net')
 let server
 const clients = [
   process.env.CLIENT1,
-  process.env.CLIENT2,
-  process.env.CLIENT3,
+  // process.env.CLIENT2,
+  // process.env.CLIENT3,
 ]
 
 const ip = require('ip')
@@ -31,7 +31,7 @@ let win
 
 const addToQueue = (request) => {
   vector[ID]++
-    vector = vector.map((v, i) => v > request.timestamp[i] ? v : request.timestamp[i])
+  vector = vector.map((v, i) => v > request.timestamp[i] ? v : request.timestamp[i])
   queue.push(request)
   queue = queue.sort((a, b) => {
     const as = a.timestamp.reduce((ac, v) => ac + v, 0)
@@ -46,8 +46,10 @@ const checkForChanges = () => {
       cs = true
       // Write to file
       const tmp = state.text.split('')
-      tmp.splice(queue[0].position, queue[0].action === 'added' ? 0 : 1, queue[0].action === 'added' ? queue[0].letter : undefined)
-      console.log(queue[0].action)
+      tmp.splice(
+        queue[0].position, queue[0].action === 'added' ? 0 : 1,
+        queue[0].action === 'added' ? queue[0].letter : undefined
+      )
       setState({
         text: tmp.join('')
       })
@@ -125,8 +127,10 @@ const createWindow = () => {
         case 'FRE':
           // Write to file
           const tmp = state.text.split('')
-          tmp.splice(queue[0].position, queue[0].action === 'added' ? 0 : 1, queue[0].action === 'added' ? queue[0].letter : undefined)
-          console.log(queue[0].action)
+          tmp.splice(
+            queue[0].position, queue[0].action === 'added' ? 0 : 1,
+            queue[0].action === 'added' ? queue[0].letter : undefined
+          )
           setState({
             text: tmp.join('')
           })
@@ -164,14 +168,14 @@ const ipc = require('electron').ipcMain
 
 const sendMessages = (data) => {
   vector[ID]++
-    const request = {
-      type: 'REQ',
-      timestamp: vector,
-      from: ID,
-      position: data.pos,
-      letter: data.key,
-      action: data.action,
-    }
+  const request = {
+    type: 'REQ',
+    timestamp: vector,
+    from: ID,
+    position: data.pos,
+    letter: data.key,
+    action: data.action,
+  }
   addToQueue(request)
   clients.map((ip) => {
     const client = new net.Socket()
