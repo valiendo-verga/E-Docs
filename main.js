@@ -120,6 +120,7 @@ const createWindow = () => {
           checkForChanges()
           break
       }
+      socket.destroy()
     })
   })
 
