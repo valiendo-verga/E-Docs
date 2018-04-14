@@ -6,6 +6,7 @@ const PROCESSES = process.env.PROCESSES
 const {
   app,
   BrowserWindow,
+  dialog
 } = require('electron')
 const path = require('path')
 const url = require('url')
@@ -16,6 +17,7 @@ let server
 const clients = [
   process.env.CLIENT1,
   process.env.CLIENT2,
+  process.env.CLIENT3,
 ]
 
 const ip = require('ip')
@@ -88,9 +90,24 @@ const createWindow = () => {
   }))
 
   win.webContents.openDevTools()
+  let preventClose = true;
 
-  win.on('closed', () => {
-    win = null
+  win.on('close', (e) => {
+    if (preventClose) {
+      e.preventDefault()
+      dialog.showMessageBox({
+        type: 'question',
+        buttons: ['Yes', 'No'],
+        title: 'Confirm',
+        message: 'Do you want to save your changes?'
+      }, function (response) {
+        preventClose = false;
+        win.close ();
+        if (response === 0) {
+
+        }
+      })
+    }
   })
 
   server = net.createServer((socket) => {
