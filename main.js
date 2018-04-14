@@ -73,11 +73,12 @@ const checkForChanges = () => {
       clients.map((ip) => {
         const client = new net.Socket()
         client.connect(PORT, ip, () => {
-          client.write(JSON.stringify(free))
-          answers++;
-          if(answers === process.env.PROCESSES - 1){
-            unlock()
-          }
+          client.write(JSON.stringify(free), () => {
+            answers++;
+            if(answers === process.env.PROCESSES - 1){
+              unlock()
+            }
+          })
         })
       })
       
