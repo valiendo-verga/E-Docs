@@ -13,13 +13,38 @@ const url = require('url')
 const dgram = require('dgram')
 const socket = dgram.createSocket('udp4');
 const ip = require('ip')
-const vector = [0,0,0,0,]
-const queue = []
-
+let vector = [0, 0, 0, 0, ]
+let queue = []
+let aks = 0
 
 console.log(ip.address())
 
 let win
+
+const addToQueue = (req) => {
+  queue.push(request)
+  queue = queue.sort((a, b) => {
+    const as = a.timestamp.reduce((ac, v) => ac + v, 0)
+    const bs = b.timestamp.reduce((ac, v) => ac + v, 0)
+    return as !== bs ? as > bs : a.from > b.from
+  })
+}
+
+const checkForChanges = () => {
+  if (aks === 0) {
+    if (queue[0].from === ID) {
+      // Write to file
+      const free = {
+        type: 'FRE',
+        from: ID,
+        letter: queue[0].letter, // from state
+        position: queue[0].position, // from state
+      }
+      queue.shift()
+      socket.send(JSON.stringify(free), PORT, MULTICAST)
+    }
+  }
+}
 
 const createWindow = () => {
   win = new BrowserWindow({
@@ -41,7 +66,7 @@ const createWindow = () => {
 
   socket.bind(PORT, () => {
     socket.addMembership(MULTICAST, ip.address());
-});
+  });
 }
 
 app.on('ready', createWindow)
@@ -58,13 +83,47 @@ app.on('activate', () => {
 
 const ipc = require('electron').ipcMain;
 
-ipc.on('invokeAction', function (event, data) {
-  console.log(data)
-  socket.send(data, PORT, MULTICAST)
-  event.sender.send('actionReply', 'Hola');
+ipc.on('invokeAction', (event, data = {
+  key: 'a',
+  pos: 0
+}) => {
+  vector[ID]++
+    const request = {
+      type: 'REQ',
+      timestamp: vector,
+      from: ID,
+      position: data.pos,
+      letter: data.key,
+    }
+  addToQueue(request)
+  socket.send(JSON.stringify(request), PORT, MULTICAST)
 });
 
 socket.on('message', (msg, info) => {
-  console.log((new Buffer(msg)).toString())
-  console.log(info)
+  if (info.address !== ip.address()) {
+    const message = (new Buffer(msg)).toString()
+    const msgObj = JSON.parse(message)
+    console.log(msgObj)
+    switch (msgObj.type) {
+      case 'ACK':
+        if (msgObj.from === ID) {
+          aks = (aks + 1) % 3
+          checkForChanges()
+        }
+        break
+      case 'REQ':
+        addToQueue(msgObj) // Assuming we are not in the CS
+        const ack = {
+          type: 'ACK',
+          from: msgObj.from,
+        }
+        socket.send(JSON.stringify(ack), PORT, MULTICAST)
+        break
+      case 'FRE':
+        // Write to file
+        queue.shift()
+        checkForChanges()
+        break
+    }
+  }
 })

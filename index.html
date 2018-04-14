@@ -15,21 +15,9 @@
   const $ = require('jquery')
   $(document).ready(() => {
     const ipc = require('electron').ipcRenderer
-    const h1 = $('#h1')
-    h1.click(() => {
-      ipc.once('actionReply', (event, response) => {
-        h1.text(response)
-      })
-      ipc.send('invokeAction', 'clicked')
-    })
     $('#main-content').keypress((e) => {
-      if (e.keyCode === 32) {
-        e.preventDefault()
-        ipc.once('actionReply', (event, response) => {
-          h1.text(response)
-        })
-        ipc.send('invokeAction', 'spaced')
-      }
+      e.preventDefault()
+      ipc.send('invokeAction', {key: e.keyCode, loc: 0})
     })
   })
 </script>
