@@ -45,7 +45,7 @@ const checkForChanges = () => {
       cs = true
       // Write to file
       setState({
-        text: state.text + queue[0].letter
+        text: state.text.split('').splice(queue[0].position, queue[0].action === 'added' ? 0 : 1, queue[0].letter).join('')
       })
       const free = {
         type: 'FRE',
@@ -103,7 +103,7 @@ const createWindow = () => {
           break
         case 'REQ':
           while (cs) {
-            setTimeout(() => {}, 500);
+            setTimeout(() => {}, 500)
           }
           addToQueue(msgObj) // Assuming we are not in the CS
           const ack = {
@@ -120,7 +120,7 @@ const createWindow = () => {
         case 'FRE':
           // Write to file
           setState({
-            text: state.text + queue[0].letter
+            text: state.text.split('').splice(queue[0].position, queue[0].action === 'added' ? 0 : 1, queue[0].letter).join('')
           })
           queue.shift()
           checkForChanges()
@@ -182,7 +182,6 @@ ipc.on('documentReady', function (event, data) {
 ipc.on('invokeAction', function (event, data) {
   let diff = getChange(data.text, state.text, data.cursorPosition);
   sendMessages(diff);
-  //setState({ text: data.text, event });
 });
 
 getChange = (newData, oldData, charPos) => {
