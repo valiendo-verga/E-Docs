@@ -45,7 +45,7 @@ const checkForChanges = () => {
       cs = true
       // Write to file
       const tmp = state.text.split('')
-      tmp.splice(queue[0].position, queue[0].action === 'added' ? 0 : 1, queue[0].letter)
+      tmp.splice(queue[0].position, queue[0].action === 'added' ? 1 : 0, queue[0].action === 'added' ? queue[0].letter : undefined)
       setState({
         text: tmp.join('')
       })
@@ -122,7 +122,7 @@ const createWindow = () => {
         case 'FRE':
           // Write to file
           const tmp = state.text.split('')
-          tmp.splice(queue[0].position, queue[0].action === 'added' ? 0 : 1, queue[0].letter)
+          tmp.splice(queue[0].position, queue[0].action === 'added' ? 1 : 0, queue[0].action === 'added' ? queue[0].letter : undefined)
           setState({
             text: tmp.join('')
           })
