@@ -15,8 +15,8 @@ const net = require('net')
 let server
 const clients = [
   process.env.CLIENT1,
-  //process.env.CLIENT2,
-  //process.env.CLIENT3,
+  process.env.CLIENT2,
+  process.env.CLIENT3,
 ]
 let coso = 0
 
@@ -24,7 +24,6 @@ const ip = require('ip')
 let vector = [0, 0, 0, 0]
 let queue = []
 let aks = 0
-let cs = false
 
 console.log(ip.address())
 
@@ -48,7 +47,6 @@ const addToQueue = (request) => {
 const checkForChanges = () => {
   if (aks === 0) {
     if (queue[0] && queue[0].from === ID) {
-      cs = true
       // Write to file
       const tmp = state.text.split('')
       tmp.splice(
@@ -74,7 +72,6 @@ const checkForChanges = () => {
         })
       })
       state.event.sender.send('unlock')
-      cs = false
     }
   }
 }
@@ -120,10 +117,7 @@ const createWindow = () => {
           }
           break
         case 'REQ':
-          while (cs) {
-            setTimeout(() => {}, 500)
-          }
-          addToQueue(msgObj) // Assuming we are not in the CS
+          addToQueue(msgObj)
           const ack = {
             type: 'ACK',
             from: msgObj.from,
