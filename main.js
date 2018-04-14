@@ -114,13 +114,10 @@ const createWindow = () => {
       const message = msg.toString()
       const msgObj = JSON.parse(message)
       const indice = coso++
-      console.log(indice, msgObj)
-      console.log(indice, 'before ', queue)
       switch (msgObj.type) {
         case 'ACK':
           if (msgObj.from === ID) {
             aks = (aks + 1) % (PROCESSES - 1)
-            console.log(indice, 'aksNumber', aks)
             mergeVectors(msgObj.timestamp)
             checkForChanges()
           }
@@ -140,6 +137,7 @@ const createWindow = () => {
           })
           break
         case 'FRE':
+          console.log(msgObj, queue)
           // Write to file
           const tmp = state.text.split('')
           tmp.splice(
@@ -149,12 +147,12 @@ const createWindow = () => {
           setState({
             text: tmp.join('')
           })
-          queue.shift()
+          const actual = queue.findIndex(x => x.from === msgObj.from && x.position === msgObj.position && x.letter === msgObj.letter && x.action === msgObj.action)
+          queue.splice(actual, 1)
           mergeVectors(msgObj.timestamp)
           checkForChanges()
           break
       }
-      console.log(indice, 'after ', queue)
       socket.destroy()
     })
   })
