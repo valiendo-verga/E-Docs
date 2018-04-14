@@ -73,6 +73,7 @@ const checkForChanges = () => {
           client.write(JSON.stringify(free))
         })
       })
+      state.event.sender.send('unlock')
       cs = false
     }
   }
