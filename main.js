@@ -44,6 +44,10 @@ const addToQueue = (request) => {
   })
 }
 
+const unlock = () => {
+  state.event.sender.send('unlock')
+}
+
 const checkForChanges = () => {
   if (aks === 0) {
     if (queue[0] && queue[0].from === ID) {
@@ -64,14 +68,20 @@ const checkForChanges = () => {
         action: queue[0].action,
         timestamp: vector,
       }
+      let answers = 0
       queue.shift()
       clients.map((ip) => {
         const client = new net.Socket()
         client.connect(PORT, ip, () => {
           client.write(JSON.stringify(free))
+          answers++;
+          if(answers === process.env.PROCESSES - 1){
+            unlock()
+          }
         })
       })
-      state.event.sender.send('unlock')
+      
+      cs = false
     }
   }
 }
