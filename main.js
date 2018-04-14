@@ -30,9 +30,13 @@ console.log(ip.address())
 
 let win
 
-const addToQueue = (request) => {
+const mergeVectors = (timestamp) => {
   vector[ID]++
-  vector = vector.map((v, i) => v > request.timestamp[i] ? v : request.timestamp[i])
+  vector = vector.map((v, i) => v > timestamp[i] ? v : timestamp[i])
+}
+
+const addToQueue = (request) => {
+  mergeVectors(request.timestamp)
   queue.push(request)
   queue = queue.sort((a, b) => {
     const as = a.timestamp.reduce((ac, v) => ac + v, 0)
@@ -59,7 +63,8 @@ const checkForChanges = () => {
         from: ID,
         letter: queue[0].letter, // from state
         position: queue[0].position, // from state
-        action: queue[0].action
+        action: queue[0].action,
+        timestamp: vector,
       }
       queue.shift()
       clients.map((ip) => {
@@ -109,6 +114,7 @@ const createWindow = () => {
           if (msgObj.from === ID) {
             aks = (aks + 1) % (PROCESSES - 1)
             console.log(indice, 'aksNumber', aks)
+            mergeVectors(msgObj.timestamp)
             checkForChanges()
           }
           break
@@ -120,6 +126,7 @@ const createWindow = () => {
           const ack = {
             type: 'ACK',
             from: msgObj.from,
+            timestamp: vector,
           }
           clients.map((ip) => {
             const client = new net.Socket()
@@ -132,13 +139,14 @@ const createWindow = () => {
           // Write to file
           const tmp = state.text.split('')
           tmp.splice(
-            queue[0].position, queue[0].action === 'added' ? 0 : 1,
-            queue[0].action === 'added' ? queue[0].letter : undefined
+            msgObj.position, msgObj.action === 'added' ? 0 : 1,
+            msgObj.action === 'added' ? msgObj.letter : undefined
           )
           setState({
             text: tmp.join('')
           })
           queue.shift()
+          mergeVectors(msgObj.timestamp)
           checkForChanges()
           break
       }
@@ -172,7 +180,6 @@ app.on('activate', () => {
 const ipc = require('electron').ipcMain
 
 const sendMessages = (data) => {
-  vector[ID]++
   const request = {
     type: 'REQ',
     timestamp: vector,
@@ -190,14 +197,14 @@ const sendMessages = (data) => {
   })
 }
 
-ipc.on('documentReady', function (event, data) {
+ipc.on('documentReady', (event, data) => {
   setState({
     text: String(fs.readFileSync(state.filePath)),
     event
   })
 })
 
-ipc.on('invokeAction', function (event, data) {
+ipc.on('invokeAction', (event, data) => {
   let diff = getChange(data.text, state.text, data.cursorPosition)
   sendMessages(diff)
 })
