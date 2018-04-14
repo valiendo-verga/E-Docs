@@ -21,7 +21,7 @@ console.log(ip.address())
 
 let win
 
-const addToQueue = (req) => {
+const addToQueue = (request) => {
   queue.push(request)
   queue = queue.sort((a, b) => {
     const as = a.timestamp.reduce((ac, v) => ac + v, 0)
