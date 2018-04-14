@@ -19,7 +19,6 @@
     const h1 = $('#h1');
 
     ipc.on('stateChange', (event, response) => {
-      console.log(response)
       mainContent.val(response.text);
       h1.text(response.fileName);
     });

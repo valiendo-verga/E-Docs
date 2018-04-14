@@ -51,8 +51,8 @@ const checkForChanges = () => {
 
 let state = {
   text: '',
-  fileName: `Leyendo de archivo: ${process.argv[2]}`,
-  filePath: path.join(__dirname, process.argv[2]),
+  fileName: `Leyendo de archivo: ${process.env.FILE}`,
+  filePath: path.join(__dirname, process.env.FILE),
 }
 
 const createWindow = () => {
@@ -149,7 +149,6 @@ ipc.on('documentReady', function (event, data) {
 });
 
 ipc.on('invokeAction', function (event, data) {
-  console.log(data)
   let diff = getChange (data.text, state.text, data.cursorPosition);
   sendMessages(diff);
   setState({ text: data.text }, event);
