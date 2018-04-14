@@ -25,6 +25,8 @@ console.log(ip.address())
 let win
 
 const addToQueue = (request) => {
+  vector[ID]++
+  vector = vector.map((v, i) => v > request.timestamp[i] ? v : request.timestamp[i])
   queue.push(request)
   queue = queue.sort((a, b) => {
     const as = a.timestamp.reduce((ac, v) => ac + v, 0)
@@ -117,6 +119,7 @@ const sendMessages = (data = {
 };
 
 socket.on('message', (msg, info) => {
+  console.log(`:before ${JSON.stringify(queue)}`)
   if (info.address !== ip.address()) {
     const message = (new Buffer(msg)).toString()
     const msgObj = JSON.parse(message)
@@ -144,6 +147,7 @@ socket.on('message', (msg, info) => {
         break
     }
   }
+  console.log(`:after ${JSON.stringify(queue)}`)
 })
 
 ipc.on('documentReady', function (event, data) {
