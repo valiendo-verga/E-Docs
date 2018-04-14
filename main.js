@@ -16,6 +16,7 @@ let server
 const clients = [
   process.env.CLIENT1,
   process.env.CLIENT2,
+  process.env.CLIENT3,
 ]
 
 const ip = require('ip')
@@ -144,7 +145,7 @@ const setState = (newState) => {
   for (let key in newState) {
     state[key] = newState[key]
   }
-  state.event.sender.send('stateChange', state);
+  state.event.sender.send('stateChange', state)
 }
 
 app.on('ready', createWindow)
@@ -159,7 +160,7 @@ app.on('activate', () => {
   }
 })
 
-const ipc = require('electron').ipcMain;
+const ipc = require('electron').ipcMain
 
 const sendMessages = (data) => {
   vector[ID]++
@@ -178,31 +179,31 @@ const sendMessages = (data) => {
       client.write(JSON.stringify(request))
     })
   })
-};
+}
 
 ipc.on('documentReady', function (event, data) {
   setState({
     text: String(fs.readFileSync(state.filePath)),
     event
-  });
-});
+  })
+})
 
 ipc.on('invokeAction', function (event, data) {
-  let diff = getChange(data.text, state.text, data.cursorPosition);
-  sendMessages(diff);
-});
+  let diff = getChange(data.text, state.text, data.cursorPosition)
+  sendMessages(diff)
+})
 
 getChange = (newData, oldData, charPos) => {
-  let data = {};
+  let data = {}
   if (newData.length > oldData.length) {
-    data.key = newData.charAt(charPos - 1);
-    data.pos = charPos - 1;
-    data.action = 'added';
+    data.key = newData.charAt(charPos - 1)
+    data.pos = charPos - 1
+    data.action = 'added'
   } else {
-    data.key = oldData.charAt(charPos);
-    data.pos = charPos;
-    data.action = 'deleted';
+    data.key = oldData.charAt(charPos)
+    data.pos = charPos
+    data.action = 'deleted'
   }
 
-  return data;
+  return data
 }
