@@ -2,6 +2,7 @@ require('dotenv').config()
 const PORT = process.env.PORT
 const MULTICAST = process.env.MULTICAST
 const ID = process.env.ID
+const PROCESSES = process.env.PROCESSES
 
 const {
   app,
@@ -107,7 +108,7 @@ socket.on('message', (msg, info) => {
     switch (msgObj.type) {
       case 'ACK':
         if (msgObj.from === ID) {
-          aks = (aks + 1) % 3
+          aks = (aks + 1) % PROCESSES
           checkForChanges()
         }
         break
