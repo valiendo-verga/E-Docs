@@ -29,25 +29,25 @@
   $(document).ready(() => {
     const ipc = require('electron').ipcRenderer
     const mainContent = $('#main-content')
-    const h1 = $('#h1');
+    const h1 = $('#h1')
 
     ipc.on('stateChange', (event, response) => {
       mainContent.val(response.text);
       h1.text(response.fileName);
-    });
+    })
 
     ipc.on('unlock', (event, response) => {
       mainContent.prop('disabled', false)
       mainContent.focus()
-    });
+    })
 
     mainContent.on('input propertychange', () => {
-      const cursorPosition = mainContent.prop("selectionStart");
+      const cursorPosition = mainContent.prop("selectionStart")
       ipc.send('invokeAction', {text: mainContent.val(), cursorPosition})
       mainContent.prop('disabled', true)
-    });
-    
-    ipc.send('documentReady');
+    })
+
+    ipc.send('documentReady')
   })
 </script>
 
