@@ -33,7 +33,7 @@ const addToQueue = (request) => {
 
 const checkForChanges = () => {
   if (aks === PROCESSES - 1) {
-    if (queue[0].from === ID) {
+    if (queue[0] && queue[0].from === ID) {
       // Write to file
       const free = {
         type: 'FRE',
