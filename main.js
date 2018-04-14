@@ -112,13 +112,13 @@ const createWindow = () => {
       e.preventDefault()
       dialog.showMessageBox({
         type: 'question',
-        buttons: ['Yes', 'No'],
-        title: 'Confirm',
+        buttons: ['No', 'Yes',],
+        title: 'You\'re leaving the app!',
         message: 'Do you want to save your changes?'
       }, function (response) {
         preventClose = false;
         win.close ();
-        if (response === 0) {
+        if (response === 1) {
           fs.writeFileSync(state.filePath,state.text, {encoding:'utf8'})
         }
       })
