@@ -35,8 +35,18 @@
       const cursorPosition = mainContent.prop("selectionStart")
       mainContent.val(response.text);
       h1.text(response.fileName);
-      mainContent.prop("selectionStart", cursorPosition ? cursorPosition : 0);
-      mainContent.prop("selectionEnd", cursorPosition ? cursorPosition : 0);
+      if(response.from !== response.id) {
+        if(response.position <= cursorPosition){
+          mainContent.prop("selectionStart", response.action === 'added' ? cursorPosition + 1 : cursorPosition - 1);
+          mainContent.prop("selectionEnd", response.action === 'added' ? cursorPosition + 1 : cursorPosition - 1);
+        } else {
+          mainContent.prop("selectionStart", cursorPosition ? cursorPosition : 0);
+          mainContent.prop("selectionEnd", cursorPosition ? cursorPosition : 0);
+        }
+      } else {
+        mainContent.prop("selectionStart", cursorPosition ? cursorPosition : 0);
+        mainContent.prop("selectionEnd", cursorPosition ? cursorPosition : 0);
+      }
     })
 
     ipc.on('unlock', (event, response) => {

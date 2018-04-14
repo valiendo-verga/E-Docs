@@ -59,7 +59,10 @@ const checkForChanges = () => {
         queue[0].action === 'added' ? queue[0].letter : undefined
       )
       setState({
-        text: tmp.join('')
+        text: tmp.join(''),
+        from: queue[0].from,
+        position: queue[0].position,
+        action: queue[0].action,
       })
       const free = {
         type: 'FRE',
@@ -88,6 +91,8 @@ const checkForChanges = () => {
 
 let state = {
   text: '',
+  id: ID,
+  from: ID,
   fileName: `Leyendo de archivo: ${process.env.FILE}`,
   filePath: path.join(__dirname, process.env.FILE),
 }
@@ -161,7 +166,10 @@ const createWindow = () => {
             msgObj.action === 'added' ? msgObj.letter : undefined
           )
           setState({
-            text: tmp.join('')
+            text: tmp.join(''),
+            from: msgObj.from,
+            position: msgObj.position,
+            action: msgObj.action,
           })
           const actual = queue.findIndex(x => x.from === msgObj.from && x.position === msgObj.position && x.letter === msgObj.letter && x.action === msgObj.action)
           queue.splice(actual, 1)
