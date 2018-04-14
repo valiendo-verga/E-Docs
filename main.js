@@ -15,9 +15,10 @@ const net = require('net')
 let server
 const clients = [
   process.env.CLIENT1,
-  // process.env.CLIENT2,
-  // process.env.CLIENT3,
+  //process.env.CLIENT2,
+  //process.env.CLIENT3,
 ]
+let coso = 0
 
 const ip = require('ip')
 let vector = [0, 0, 0, 0]
@@ -100,11 +101,14 @@ const createWindow = () => {
     socket.on('data', (msg) => {
       const message = msg.toString()
       const msgObj = JSON.parse(message)
-      console.log(msgObj)
+      const indice = coso++
+      console.log(indice, msgObj)
+      console.log(indice, 'before ', queue)
       switch (msgObj.type) {
         case 'ACK':
           if (msgObj.from === ID) {
             aks = (aks + 1) % (PROCESSES - 1)
+            console.log(indice, 'aksNumber', aks)
             checkForChanges()
           }
           break
@@ -138,6 +142,7 @@ const createWindow = () => {
           checkForChanges()
           break
       }
+      console.log(indice, 'after ', queue)
       socket.destroy()
     })
   })
