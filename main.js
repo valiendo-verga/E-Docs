@@ -199,7 +199,7 @@ const sendMessages = (data) => {
 
 ipc.on('documentReady', function (event, data) {
   setState({
-    text: String(fs.readFileSync(state.filePath)),
+    text: String(fs.readFileSync(state.filePath)).replace(/\r?/g, ''),
     event
   });
 });
@@ -221,5 +221,9 @@ getChange = (newData, oldData, charPos) => {
     data.action = 'deleted';
   }
 
-  return data;
+  if(data.key == '\r'){
+    data.key = '\n';
+  }
+
+  return data ;
 }
