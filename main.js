@@ -1,6 +1,5 @@
 require('dotenv').config()
 const PORT = process.env.PORT
-const MULTICAST = process.env.MULTICAST
 const ID = process.env.ID
 const PROCESSES = process.env.PROCESSES
 
@@ -12,11 +11,15 @@ const path = require('path')
 const url = require('url')
 const fs = require('fs')
 
+const net = require('net')
+let server
+const clients = [
+  process.env.CLIENT1,
+  process.env.CLIENT2,
+]
 
-const dgram = require('dgram')
-const socket = dgram.createSocket('udp4');
 const ip = require('ip')
-let vector = [0, 0, 0, 0, ]
+let vector = [0, 0, 0, 0]
 let queue = []
 let aks = 0
 
@@ -26,7 +29,7 @@ let win
 
 const addToQueue = (request) => {
   vector[ID]++
-  vector = vector.map((v, i) => v > request.timestamp[i] ? v : request.timestamp[i])
+    vector = vector.map((v, i) => v > request.timestamp[i] ? v : request.timestamp[i])
   queue.push(request)
   queue = queue.sort((a, b) => {
     const as = a.timestamp.reduce((ac, v) => ac + v, 0)
@@ -39,7 +42,9 @@ const checkForChanges = () => {
   if (aks === 0) {
     if (queue[0] && queue[0].from === ID) {
       // Write to file
-      setState({ text: state.text + queue[0].letter })
+      setState({
+        text: state.text + queue[0].letter
+      })
       const free = {
         type: 'FRE',
         from: ID,
@@ -47,7 +52,12 @@ const checkForChanges = () => {
         position: queue[0].position, // from state
       }
       queue.shift()
-      socket.send(JSON.stringify(free), PORT, MULTICAST)
+      clients.map((ip) => {
+        const client = new net.Socket()
+        client.connect(PORT, ip, () => {
+          client.write(JSON.stringify(free))
+        })
+      })
     }
   }
 }
@@ -76,9 +86,44 @@ const createWindow = () => {
     win = null
   })
 
-  socket.bind(PORT, () => {
-    socket.addMembership(MULTICAST, ip.address());
-  });
+  server = net.createServer((socket) => {
+    socket.on('data', (msg) => {
+      const message = msg.toString()
+      const msgObj = JSON.parse(message)
+      console.log(msgObj)
+      switch (msgObj.type) {
+        case 'ACK':
+          if (msgObj.from === ID) {
+            aks = (aks + 1) % (PROCESSES - 1)
+            checkForChanges()
+          }
+          break
+        case 'REQ':
+          addToQueue(msgObj) // Assuming we are not in the CS
+          const ack = {
+            type: 'ACK',
+            from: msgObj.from,
+          }
+          clients.map((ip) => {
+            const client = new net.Socket()
+            client.connect(PORT, ip, () => {
+              client.write(JSON.stringify(ack))
+            })
+          })
+          break
+        case 'FRE':
+          // Write to file
+          setState({
+            text: state.text + queue[0].letter
+          })
+          queue.shift()
+          checkForChanges()
+          break
+      }
+    })
+  })
+
+  server.listen(PORT)
 }
 
 const setState = (newState) => {
@@ -102,10 +147,7 @@ app.on('activate', () => {
 
 const ipc = require('electron').ipcMain;
 
-const sendMessages = (data = {
-  key: 'a',
-  pos: 0
-}) => {
+const sendMessages = (data) => {
   vector[ID]++
     const request = {
       type: 'REQ',
@@ -115,47 +157,23 @@ const sendMessages = (data = {
       letter: data.key,
     }
   addToQueue(request)
-  socket.send(JSON.stringify(request), PORT, MULTICAST)
+  clients.map((ip) => {
+    const client = new net.Socket()
+    client.connect(PORT, ip, () => {
+      client.write(JSON.stringify(request))
+    })
+  })
 };
 
-socket.on('message', (msg, info) => {
-  console.log(`:before ${JSON.stringify(queue)}`)
-  if (info.address !== ip.address()) {
-    const message = (new Buffer(msg)).toString()
-    const msgObj = JSON.parse(message)
-    console.log(msgObj)
-    switch (msgObj.type) {
-      case 'ACK':
-        if (msgObj.from === ID) {
-          aks = (aks + 1) % (PROCESSES - 1)
-          checkForChanges()
-        }
-        break
-      case 'REQ':
-        addToQueue(msgObj) // Assuming we are not in the CS
-        const ack = {
-          type: 'ACK',
-          from: msgObj.from,
-        }
-        socket.send(JSON.stringify(ack), PORT, MULTICAST)
-        break
-      case 'FRE':
-        // Write to file
-        setState({ text: state.text + queue[0].letter })
-        queue.shift()
-        checkForChanges()
-        break
-    }
-  }
-  console.log(`:after ${JSON.stringify(queue)}`)
-})
-
 ipc.on('documentReady', function (event, data) {
-  setState({ text: String (fs.readFileSync (state.filePath)), event });
+  setState({
+    text: String(fs.readFileSync(state.filePath)),
+    event
+  });
 });
 
 ipc.on('invokeAction', function (event, data) {
-  let diff = getChange (data.text, state.text, data.cursorPosition);
+  let diff = getChange(data.text, state.text, data.cursorPosition);
   sendMessages(diff);
   //setState({ text: data.text, event });
 });
@@ -163,11 +181,11 @@ ipc.on('invokeAction', function (event, data) {
 getChange = (newData, oldData, charPos) => {
   let data = {};
   if (newData.length > oldData.length) {
-    data.key = newData.charAt (charPos - 1);
-    data.pos = charPos -1;
+    data.key = newData.charAt(charPos - 1);
+    data.pos = charPos - 1;
     data.action = 'added';
   } else {
-    data.key = oldData.charAt (charPos);
+    data.key = oldData.charAt(charPos);
     data.pos = charPos;
     data.action = 'deleted';
   }
