@@ -44,8 +44,10 @@ const checkForChanges = () => {
     if (queue[0] && queue[0].from === ID) {
       cs = true
       // Write to file
+      const tmp = state.text.split('')
+      tmp.splice(queue[0].position, queue[0].action === 'added' ? 0 : 1, queue[0].letter)
       setState({
-        text: state.text.split('').splice(queue[0].position, queue[0].action === 'added' ? 0 : 1, queue[0].letter).join('')
+        text: tmp.join('')
       })
       const free = {
         type: 'FRE',
@@ -119,8 +121,10 @@ const createWindow = () => {
           break
         case 'FRE':
           // Write to file
+          const tmp = state.text.split('')
+          tmp.splice(queue[0].position, queue[0].action === 'added' ? 0 : 1, queue[0].letter)
           setState({
-            text: state.text.split('').splice(queue[0].position, queue[0].action === 'added' ? 0 : 1, queue[0].letter).join('')
+            text: tmp.join('')
           })
           queue.shift()
           checkForChanges()
