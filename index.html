@@ -32,8 +32,11 @@
     const h1 = $('#h1')
 
     ipc.on('stateChange', (event, response) => {
+      const cursorPosition = mainContent.prop("selectionStart")
       mainContent.val(response.text);
       h1.text(response.fileName);
+      mainContent.prop("selectionStart", cursorPosition ? cursorPosition : 0);
+      mainContent.prop("selectionEnd", cursorPosition ? cursorPosition : 0);
     })
 
     ipc.on('unlock', (event, response) => {
