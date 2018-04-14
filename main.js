@@ -208,12 +208,7 @@ ipc.on('documentReady', (event, data) => {
   })
 })
 
-ipc.on('invokeAction', (event, data) => {
-  let diff = getChange(data.text, state.text, data.cursorPosition)
-  sendMessages(diff)
-})
-
-getChange = (newData, oldData, charPos) => {
+const getChange = (newData, oldData, charPos) => {
   let data = {}
   if (newData.length > oldData.length) {
     data.key = newData.charAt(charPos - 1)
@@ -227,3 +222,8 @@ getChange = (newData, oldData, charPos) => {
 
   return data
 }
+
+ipc.on('invokeAction', (event, data) => {
+  let diff = getChange(data.text, state.text, data.cursorPosition)
+  sendMessages(diff)
+})
