@@ -34,7 +34,7 @@ const addToQueue = (request) => {
 }
 
 const checkForChanges = () => {
-  if (aks === PROCESSES - 1) {
+  if (aks === 0) {
     if (queue[0] && queue[0].from === ID) {
       // Write to file
       const free = {
@@ -123,7 +123,7 @@ socket.on('message', (msg, info) => {
     switch (msgObj.type) {
       case 'ACK':
         if (msgObj.from === ID) {
-          aks = (aks + 1) % (PROCESSES)
+          aks = (aks + 1) % (PROCESSES - 1)
           checkForChanges()
         }
         break
