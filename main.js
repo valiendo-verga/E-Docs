@@ -78,7 +78,7 @@ const checkForChanges = () => {
         client.connect(PORT, ip, () => {
           client.write(JSON.stringify(free), () => {
             answers++
-            if (answers === process.env.PROCESSES - 1) {
+            if (answers === PROCESSES - 1) {
               unlock()
             }
           })
