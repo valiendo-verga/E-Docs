@@ -77,7 +77,7 @@ const checkForChanges = () => {
         const client = new net.Socket()
         client.connect(PORT, ip, () => {
           client.write(JSON.stringify(free), () => {
-            answers++;
+            answers++
             if(answers === process.env.PROCESSES - 1){
               unlock()
             }
@@ -109,7 +109,7 @@ const createWindow = () => {
   }))
 
   win.webContents.openDevTools()
-  let preventClose = true;
+  let preventClose = true
 
   win.on('close', (e) => {
     if (preventClose) {
@@ -120,8 +120,8 @@ const createWindow = () => {
         title: 'You\'re leaving the app!',
         message: 'Do you want to save your changes?'
       }, function (response) {
-        preventClose = false;
-        win.close ();
+        preventClose = false
+        win.close ()
         if (response === 1) {
           fs.writeFileSync(state.filePath,state.text, {encoding:'utf8'})
         }
@@ -246,8 +246,8 @@ getChange = (newData, oldData, charPos) => {
   }
 
   if(data.key == '\r'){
-    data.key = '\n';
+    data.key = '\n'
   }
 
-  return data ;
+  return data
 }
