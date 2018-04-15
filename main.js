@@ -119,7 +119,7 @@ const createWindow = () => {
         buttons: ['No', 'Yes',],
         title: 'You\'re leaving the app!',
         message: 'Do you want to save your changes?'
-      }, function (response) {
+      }, (response) => {
         preventClose = false
         win.close ()
         if (response === 1) {
