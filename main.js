@@ -17,7 +17,7 @@ let server
 const clients = [
   process.env.CLIENT1,
   process.env.CLIENT2,
-  // process.env.CLIENT3,
+  process.env.CLIENT3,
 ]
 let coso = 0
 
