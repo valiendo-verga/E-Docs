@@ -78,7 +78,7 @@ const checkForChanges = () => {
         client.connect(PORT, ip, () => {
           client.write(JSON.stringify(free), () => {
             answers++
-            if(answers === process.env.PROCESSES - 1){
+            if (answers === process.env.PROCESSES - 1) {
               unlock()
             }
           })
@@ -116,14 +116,16 @@ const createWindow = () => {
       e.preventDefault()
       dialog.showMessageBox({
         type: 'question',
-        buttons: ['No', 'Yes',],
+        buttons: ['No', 'Yes'],
         title: 'You\'re leaving the app!',
         message: 'Do you want to save your changes?'
       }, (response) => {
         preventClose = false
-        win.close ()
+        win.close()
         if (response === 1) {
-          fs.writeFileSync(state.filePath,state.text, {encoding:'utf8'})
+          fs.writeFileSync(state.filePath, state.text, {
+            encoding: 'utf8'
+          })
         }
       })
     }
@@ -169,7 +171,12 @@ const createWindow = () => {
             position: msgObj.position,
             action: msgObj.action,
           })
-          const actual = queue.findIndex(x => x.from === msgObj.from && x.position === msgObj.position && x.letter === msgObj.letter && x.action === msgObj.action)
+          const actual = queue.findIndex( x =>
+            x.from === msgObj.from &&
+            x.position === msgObj.position &&
+            x.letter === msgObj.letter &&
+            x.action === msgObj.action
+          )
           queue.splice(actual, 1)
           mergeVectors(msgObj.timestamp)
           checkForChanges()
@@ -245,7 +252,7 @@ getChange = (newData, oldData, charPos) => {
     data.action = 'deleted'
   }
 
-  if(data.key == '\r'){
+  if (data.key == '\r') {
     data.key = '\n'
   }
 
