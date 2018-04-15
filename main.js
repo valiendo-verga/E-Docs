@@ -52,7 +52,6 @@ const unlock = () => {
 const checkForChanges = () => {
   if (aks === 0) {
     if (queue[0] && queue[0].from === ID) {
-      // Write to file
       const tmp = state.text.split('')
       tmp.splice(
         queue[0].position, queue[0].action === 'added' ? 0 : 1,
@@ -67,8 +66,8 @@ const checkForChanges = () => {
       const free = {
         type: 'FRE',
         from: ID,
-        letter: queue[0].letter, // from state
-        position: queue[0].position, // from state
+        letter: queue[0].letter,
+        position: queue[0].position,
         action: queue[0].action,
         timestamp: vector,
       }
@@ -159,7 +158,6 @@ const createWindow = () => {
           break
         case 'FRE':
           console.log(msgObj, queue)
-          // Write to file
           const tmp = state.text.split('')
           tmp.splice(
             msgObj.position, msgObj.action === 'added' ? 0 : 1,
